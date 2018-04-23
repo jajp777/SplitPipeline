@@ -33,7 +33,11 @@ namespace SplitPipeline
 		[Parameter]
 		public string[] Function { get; set; }
 
-		[Parameter]
+        [Parameter]
+        public string[] Configuration { get; set; }
+
+
+        [Parameter]
 		public string[] Module { get; set; }
 
 		[Parameter]
@@ -176,8 +180,18 @@ namespace SplitPipeline
 				}
 			}
 
-			// verbose state
-			object parameter;
+            // import configurations
+            if (Configuration != null)
+            {
+                foreach (var name in Configuration)
+                {
+                    var configuration = (ConfigurationInfo)SessionState.InvokeCommand.GetCommand(name, CommandTypes.Configuration);
+                    _iss.Commands.Add(new SessionStateFunctionEntry(name, configuration.Definition));
+                }
+            }
+
+            // verbose state
+            object parameter;
 			if (MyInvocation.BoundParameters.TryGetValue("Verbose", out parameter))
 			{
 				_verbose = ((SwitchParameter)parameter).ToBool();
